@@ -2,10 +2,12 @@ from models import db, Contacts
 from faker import Factory
 from app import app  # Import your Flask app instance
 
+
 fake = Factory.create()
 
 # Wrap the entire process in the app context
 with app.app_context():
+
     # Reload tables
     db.drop_all()
     db.create_all()
