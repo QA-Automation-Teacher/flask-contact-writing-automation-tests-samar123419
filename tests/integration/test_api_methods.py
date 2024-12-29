@@ -1,39 +1,73 @@
-import pytest
-import requests
-from forms import ContactForm
+import time
 
-@pytest.fixture
-def base_url():
-    return "http://127.0.0.1:5000/"
 
-form = ContactForm({ 
-    "name":"samar",
-        "surname":"hdeeb",
-        "mail":"samar@mail.hdeeb",
-        "phone":"1234567890"})
+BASE_URL = "http://localhost:5000"
 
-def test_homepage_status_code_200(base_url):
-    response = requests.get(base_url)
+def setup_module(module):
+    pass
+
+
+def teardown_module(module):
+    pass
+
+
+def test_get_contacts(client):
+    response = client.get(BASE_URL + "/contacts")
     assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
 
-def test_newpage_status_code_200(base_url):
-    response = requests.get(base_url + "new_contact")
-    assert response.status_code == 200
+def test_content_type_delete(client):
+    # Send a GET request
+    response = client.delete(BASE_URL + "/contacts/delete/52")
 
+    # Check if the 'Content-Type' header is present
+    assert "Content-Type" in response.headers
 
-def test_post_method(base_url):
-    payload = [
-        "samar",
-        "hdeeb",
-        "samar@gmail.hdeeb",
-        "1234567890"
-    ]
-    response = requests.post(base_url +" /edit_contact/48", form)
-    assert response.status_code == 200
+def test_response_time_delete(client):
+    start = time.time()
+    response = client.delete(BASE_URL + "/contacts/delete/50")
+    end = time.time()
+    
+    response_time = (end - start) * 1000  # Convert to milliseconds
 
-# def test_delete():
-#     response = requests.delete("http://127.0.0.1:5000/contactsdelete/48") 
-#     assert response.status_code == 200
+    assert response_time < 300
+
+def test_name_in_users(client):
+    response = client.get( BASE_URL + "/contacts")
+    # print(response.text)
+    data = response.get_json()
+    num = len(data)
+
+    for i in range(num):
+        assert "name" in data[i].keys()
+
+def test_email_in_users(client):
+    response = client.get( BASE_URL + "/contacts")
+    # print(response.text)
+    data = response.get_json()
+    num = len(data)
+
+    for i in range(num):
+        assert "email" in data[i].keys()
+
+def test_surname_in_users(client):
+    response = client.get( BASE_URL + "/contacts")
+    # print(response.text)
+    data = response.get_json()
+    num = len(data)
+
+    for i in range(num):
+        assert "surname" in data[i].keys()
+
+def test_phone_in_users(client):
+    response = client.get( BASE_URL + "/contacts")
+    # print(response.text)
+    data = response.get_json()
+    num = len(data)
+
+    for i in range(num):
+        assert "phone" in data[i].keys()
+
 
 
 
